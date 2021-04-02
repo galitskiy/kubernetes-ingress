@@ -1079,19 +1079,20 @@ func TestUpdateApResources(t *testing.T) {
 			},
 		},
 	}
-	appProtectLogConf := &unstructured.Unstructured{
-		Object: map[string]interface{}{
+	appProtectLogConf := []*unstructured.Unstructured{
+		{Object: map[string]interface{}{
 			"metadata": map[string]interface{}{
 				"namespace": "test-ns",
 				"name":      "test-name",
 			},
 		},
+		},
 	}
-	appProtectLogDst := "test-dst"
+	appProtectLogDst := []string{"test-dst"}
 
 	tests := []struct {
 		ingEx    *IngressEx
-		expected map[string]string
+		expected AppProtectResources
 		msg      string
 	}{
 		{
@@ -1100,7 +1101,7 @@ func TestUpdateApResources(t *testing.T) {
 					ObjectMeta: meta_v1.ObjectMeta{},
 				},
 			},
-			expected: map[string]string{},
+			expected: AppProtectResources{},
 			msg:      "no app protect resources",
 		},
 		{
@@ -1110,8 +1111,8 @@ func TestUpdateApResources(t *testing.T) {
 				},
 				AppProtectPolicy: appProtectPolicy,
 			},
-			expected: map[string]string{
-				"policy": "/etc/nginx/waf/nac-policies/test-ns_test-name",
+			expected: AppProtectResources{
+				AppProtectPolicy: "/etc/nginx/waf/nac-policies/test-ns_test-name",
 			},
 			msg: "app protect policy",
 		},
@@ -1123,8 +1124,8 @@ func TestUpdateApResources(t *testing.T) {
 				AppProtectLogConf: appProtectLogConf,
 				AppProtectLogDst:  appProtectLogDst,
 			},
-			expected: map[string]string{
-				"logconf": "/etc/nginx/waf/nac-logconfs/test-ns_test-name test-dst",
+			expected: AppProtectResources{
+				AppProtectLogconfs: []string{"/etc/nginx/waf/nac-logconfs/test-ns_test-name test-dst"},
 			},
 			msg: "app protect log conf",
 		},
@@ -1137,9 +1138,9 @@ func TestUpdateApResources(t *testing.T) {
 				AppProtectLogConf: appProtectLogConf,
 				AppProtectLogDst:  appProtectLogDst,
 			},
-			expected: map[string]string{
-				"policy":  "/etc/nginx/waf/nac-policies/test-ns_test-name",
-				"logconf": "/etc/nginx/waf/nac-logconfs/test-ns_test-name test-dst",
+			expected: AppProtectResources{
+				AppProtectPolicy:   "/etc/nginx/waf/nac-policies/test-ns_test-name",
+				AppProtectLogconfs: []string{"/etc/nginx/waf/nac-logconfs/test-ns_test-name test-dst"},
 			},
 			msg: "app protect policy and log conf",
 		},
